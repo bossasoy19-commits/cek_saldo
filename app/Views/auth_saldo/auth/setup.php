@@ -21,7 +21,7 @@
 
                     <?php
                     echo form_open(
-                        base_url(($controller ?? 'setup') . '/save_first_time'),
+                        base_url(($controller) . '/save_first_time'),
                         [
                             'id' => 'form_datas',
                             'class' => 'needs-validation',

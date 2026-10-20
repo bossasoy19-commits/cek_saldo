@@ -201,7 +201,7 @@ class AuthModel extends Model
     {
         $namaLower = strtolower($wallet['nama']);
         $jenisWallet = 'CASH';
-        if (str_contains($namaLower, 'ovo') || str_contains($namaLower, 'gopay') || str_contains($namaLower, 'dana')) {
+        if (str_contains($namaLower, 'ovo') || str_contains($namaLower, 'gopay') || str_contains($namaLower, 'dana') || str_contains($namaLower, 'shopee')) {
             $jenisWallet = 'EWALLET';
         } elseif (str_contains($namaLower, 'bri') || str_contains($namaLower, 'bca') || str_contains($namaLower, 'mandiri') || str_contains($namaLower, 'bank')) {
             $jenisWallet = 'BANK';

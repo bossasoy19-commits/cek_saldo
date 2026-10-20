@@ -14,7 +14,7 @@ class AuthFilter implements FilterInterface
         if (!session()->get('isLoggedIn')) {
             // simpan URL sekarang
             session()->set('redirect_url', current_url());
-            return redirect()->to('auth/login');
+            return redirect()->to('login');
         }
     }
 

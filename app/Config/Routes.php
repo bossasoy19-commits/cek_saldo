@@ -9,17 +9,16 @@ use CodeIgniter\Router\RouteCollection;
 $routes->group('auth', function ($routes) {
     $controller = 'auth_saldo\auth';
     $routes->get('/', $controller . '::index');
-    $routes->get('/setup', $controller . '::setup');
 
     // Menerima parameter $form di URL, contoh: /login atau /login/welcome
     // $routes->get('(:segment)?', $controller . '::index/$1');
     $routes->get('registers', $controller . '::registers');
     $routes->get('guest', $controller . '::index/guest');
-    $routes->get('setup', $controller . '::index/setup');
+    $routes->get('setup', $controller . '::setup');
     $routes->get('login', $controller . '::login');
     $routes->get('logout', $controller . '::logout');
     $routes->post('save', $controller . '::save');
-    $routes->post('save_first_time', $controller . '::save_first_time');
+    $routes->post('save_first_time', $controller . '::save_first_time', ['filter' => 'auth']);
     $routes->post('proccess', $controller . '::proccess'); // /login/proccess
 });
 
@@ -28,6 +27,7 @@ $routes->group('auth', function ($routes) {
 $routes->get('/', 'home\home::index', ['filter' => 'auth']);
 $routes->get('logout', 'auth_saldo\Auth::logout');
 $routes->get('login', 'auth_saldo\Auth::login');
+$routes->get('setup', 'auth_saldo\Auth::setup');
 
 $routes->get('adminLTE', 'adminLTE::index', ['filter' => 'auth']);
 // $routes->get('adminLTE', 'adminLTE::index');

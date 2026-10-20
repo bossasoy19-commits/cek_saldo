@@ -4,21 +4,24 @@ namespace App\Controllers\auth_saldo;
 
 use App\Controllers\BaseController;
 use App\Models\AuthModel;
+use App\Models\room\RoomModel;
 use App\Models\UserModel;
 
 class Auth extends BaseController
 {
     protected $controller = 'auth';
-    protected string $folder_ = 'auth_saldo';
+    protected $folder_ = 'auth_saldo';
     protected $title = 'Login';
     protected $UserModel;
     protected $AuthModel;
     protected $IndexModel;
+    protected $RoomModel;
     public function __construct()
     {
         // Set timezone ke Indonesia
         $this->UserModel = new UserModel();
         $this->AuthModel = new AuthModel();
+        $this->RoomModel = new RoomModel();
         $this->IndexModel = $this->UserModel;
         date_default_timezone_set('Asia/Jakarta');
         // Load model
@@ -73,18 +76,25 @@ class Auth extends BaseController
         $pesan = '';
         return alert($pesan ?: 'Sukses diproses !',  ['color' => 'alert-success', 'second' => '5']);
     }
-    public function setup(): string
+    public function setup(): string|\CodeIgniter\HTTP\RedirectResponse
     {
-        $data['title'] = $this->title;
+        $user_id = session()->get('user_id');
+        $room = $this->RoomModel->where('owner_user_id', $user_id)->first();
+        if ($room) {
+            // hanya boleh sekali setup;
+            return redirect()->to('');
+        }
+        $data['title'] = 'Setup';
         $data2 = [];
         $data['data2'] = $data2;
+        $data['controller'] = $this->controller;
         $data['file_view'] = $this->folder_ . '/' . $this->controller . '/setup';
         return view('layout_lte/section_auth', $data);
     }
 
     public function registers()
     {
-        $data['title'] = $this->title;
+        $data['title'] = 'Pendaftaran';
         $data['hx_post'] = 'post';
         $data['controller'] =  $this->controller;
         return view($this->folder_ . '/' . $this->controller . '/register', $data);
@@ -172,6 +182,11 @@ class Auth extends BaseController
 
     public function save_first_time(): string
     {
+        $user_id = session()->get('user_id');
+        $room = $this->RoomModel->where('owner_user_id', $user_id)->first();
+        if ($room) {
+            return alert('Sepertinya kamu sudah pernah melakukan setup sebelumnya. Yuk, langsung lanjut ke <a href="' . base_url() . '">dashboard</a> !');
+        }
         $input = $this->request->getPost();
 
         $wallets = $input['wallets'];
@@ -221,7 +236,7 @@ class Auth extends BaseController
 
             $counter = 1;
             foreach ($wallets as $wallet) {
-                $saldo = (float) ($wallet['saldo'] ?? 0);
+                $saldo = (float)($wallet['saldo'] ?? 0);
 
                 // Deteksi jenis wallet otomatis dari nama (opsional)
                 $jenisWallet = $this->AuthModel->jenisWallet($wallet);
@@ -343,8 +358,9 @@ class Auth extends BaseController
                 $this->controller . '/' . __FUNCTION__
             );
             if ($result === false) {
+                $errors = $this->IndexModel->errors();
                 return alert(
-                    implode('<br>', $this->IndexModel->errors())
+                    implode('<br>', $errors)
                 );
             }
         } catch (\Throwable $th) {

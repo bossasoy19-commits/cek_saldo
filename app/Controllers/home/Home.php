@@ -5,6 +5,7 @@ namespace App\Controllers\home;
 use App\Controllers\BaseController;
 use App\Controllers\BaseCrudController;
 use App\Models\coa\AccountModel;
+use App\Models\room\RoomModel;
 
 class Home extends BaseCrudController
 {
@@ -15,6 +16,7 @@ class Home extends BaseCrudController
     protected $IndexModel;
     protected $UserModel;
     protected $AccountModel;
+    protected $RoomModel;
 
     public function __construct()
     {
@@ -22,6 +24,7 @@ class Home extends BaseCrudController
         date_default_timezone_set('Asia/Jakarta');
         // Load model
         $this->AccountModel = new AccountModel();
+        $this->RoomModel = new RoomModel();
         $this->breadcrumb = [
             ['href' => $this->controller, 'title' => $this->title]
         ];
@@ -30,9 +33,13 @@ class Home extends BaseCrudController
     {
         $user_id = session()->get('user_id');
         // cari account rekening
-        $account = $this->AccountModel->where('created_by', $user_id)->findAll();
-        $data['title'] = $this->title;
-        $data['account'] = $account;
+        $room = $this->RoomModel->where('owner_user_id', $user_id)->first();
+        if ($room) {
+            $room_id = $room['room_id'];
+            $account = $this->AccountModel->where('room_id', $room_id)->findAll();
+            $data['account'] = $account;
+        }
+        $data['room'] = $room;
         $data2 = [];
         $data['data2'] = $data2;
         $data['file_view'] = $this->controller . '/index';

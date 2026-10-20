@@ -5,7 +5,11 @@
         background: rgba(255, 255, 255, 0.5);
     }
 </style>
-<?php helper('number'); ?>
+<?php
+
+use PhpParser\Node\Stmt\Echo_;
+
+helper('number'); ?>
 <div class="container-fluid min-vh-100 pb-5 px-3 bg-body-tertiary">
 
     <!-- Top App Bar / User Greeting -->
@@ -74,76 +78,99 @@
         <div class="position-absolute bottom-0 end-0 rounded-circle me-n4 mb-n4 decorative-circle"></div>
     </div>
 
-    <!-- QUICK ACTION BUTTONS: TRANSAKSI -->
-    <div class="row g-2 mb-4">
-        <div class="col-4">
-            <a href="<?= base_url('transaction/form/pemasukan') ?>" class="btn btn-success w-100 py-3 rounded-4 shadow-sm d-flex flex-column align-items-center gap-1">
-                <i class="bi bi-plus-circle-fill fs-4"></i>
-                <span class="fw-semibold fs-7">Pemasukan</span>
-            </a>
-        </div>
-        <div class="col-4">
-            <a href="<?= base_url('transaction/form/pengeluaran') ?>" class="btn btn-danger w-100 py-3 rounded-4 shadow-sm d-flex flex-column align-items-center gap-1">
-                <i class="bi bi-dash-circle-fill fs-4"></i>
-                <span class="fw-semibold fs-7">Pengeluaran</span>
-            </a>
-        </div>
-        <div class="col-4">
-            <a href="<?= base_url('transaction/form/transfer') ?>" class="btn btn-primary w-100 py-3 rounded-4 shadow-sm d-flex flex-column align-items-center gap-1">
-                <i class="bi bi-arrow-left-right fs-4"></i>
-                <span class="fw-semibold fs-7">Transfer</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- LIST SALDO PER DOMPET -->
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="fw-bold text-dark mb-0">Saldo per Dompet</h6>
-        <a href="<?= base_url('account') ?>" class="text-primary text-decoration-none small fw-semibold">Kelola</a>
-    </div>
-
-    <div class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-body p-2">
-            <div class="d-flex flex-column gap-1">
-                <?php
-
-                $wallet = array_filter($account, function ($item) {
-                    return $item['is_wallet'] == 1;
-                });
-                foreach ($wallet as $dompet) : ?>
-                    <?php
-                    $icon = match ($dompet['jenis_wallet'] ?? null) {
-                        'CASH'    => 'bi-cash-stack',
-                        'BANK'    => 'bi-bank',
-                        'EWALLET' => 'bi-wallet2',
-                        default   => 'bi-wallet2',
-                    };
-                    ?>
-
-                    <div class="p-3 rounded-3 d-flex align-items-center justify-content-between hover-bg-light">
-
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="p-2 bg-light rounded-3 text-primary">
-                                <i class="bi <?= $icon ?> fs-5"></i>
-                            </div>
-
-                            <span class="fw-semibold text-dark">
-                                <?= esc($dompet['nama_akun']) ?>
-                            </span>
-                        </div>
-
-                        <span class="fw-bold text-dark">
-                            <?= number_to_currency($dompet['saldo'] ?? 0, 'IDR', 'id_ID', 0) ?>
-                        </span>
-
-                    </div>
-                <?php endforeach ?>
 
 
+
+    <?php if ($room) : ?>
+        <!-- QUICK ACTION BUTTONS: TRANSAKSI -->
+        <div class="row g-2 mb-4">
+            <div class="col-4">
+                <a href="<?= base_url('transaction/form/pemasukan') ?>" class="btn btn-success w-100 py-3 rounded-4 shadow-sm d-flex flex-column align-items-center gap-1">
+                    <i class="bi bi-plus-circle-fill fs-4"></i>
+                    <span class="fw-semibold fs-7">Pemasukan</span>
+                </a>
+            </div>
+            <div class="col-4">
+                <a href="<?= base_url('transaction/form/pengeluaran') ?>" class="btn btn-danger w-100 py-3 rounded-4 shadow-sm d-flex flex-column align-items-center gap-1">
+                    <i class="bi bi-dash-circle-fill fs-4"></i>
+                    <span class="fw-semibold fs-7">Pengeluaran</span>
+                </a>
+            </div>
+            <div class="col-4">
+                <a href="<?= base_url('transaction/form/transfer') ?>" class="btn btn-primary w-100 py-3 rounded-4 shadow-sm d-flex flex-column align-items-center gap-1">
+                    <i class="bi bi-arrow-left-right fs-4"></i>
+                    <span class="fw-semibold fs-7">Transfer</span>
+                </a>
             </div>
         </div>
-    </div>
+        <!-- LIST SALDO PER DOMPET -->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold text-dark mb-0">Saldo per Dompet</h6>
+            <a href="<?= base_url('account') ?>" class="text-primary text-decoration-none small fw-semibold">Kelola</a>
+        </div>
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-body p-2">
+                <div class="d-flex flex-column gap-1">
+                    <?php
 
+                    $wallet = array_filter($account, function ($item) {
+                        return $item['is_wallet'] == 1;
+                    });
+                    foreach ($wallet as $dompet) : ?>
+                        <?php
+                        $icon = match ($dompet['jenis_wallet'] ?? null) {
+                            'CASH'    => 'bi-cash-stack',
+                            'BANK'    => 'bi-bank',
+                            'EWALLET' => 'bi-wallet2',
+                            default   => 'bi-wallet2',
+                        };
+                        ?>
+
+                        <div class="p-3 rounded-3 d-flex align-items-center justify-content-between hover-bg-light">
+
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-2 bg-light rounded-3 text-primary">
+                                    <i class="bi <?= $icon ?> fs-5"></i>
+                                </div>
+
+                                <span class="fw-semibold text-dark">
+                                    <?= esc($dompet['nama_akun']) ?>
+                                </span>
+                            </div>
+
+                            <span class="fw-bold text-dark">
+                                <?= number_to_currency($dompet['saldo'] ?? 0, 'IDR', 'id_ID', 0) ?>
+                            </span>
+
+                        </div>
+                    <?php endforeach ?>
+
+
+                </div>
+            </div>
+        </div>
+    <?php else :
+
+    ?>
+        <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <div class="me-3 fs-3 text-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div>
+                    <h5 class="alert-heading mb-1 fw-bold">Setup Keuangan Belum Selesai!</h5>
+                    <p class="mb-2 text-secondary">
+                        Anda belum menyelesaikan konfigurasi akun kas/rekening atau saldo awal.
+                        Silakan lakukan setup sederhana terlebih dahulu agar dapat mulai mencatat transaksi harian.
+                    </p>
+                    <a href="<?= base_url('setup') ?>" class="btn btn-warning btn-sm fw-semibold text-dark rounded-2">
+                        <i class="bi bi-gear-fill me-1"></i> Mulai Setup Sederhana
+                    </a>
+                </div>
+            </div>
+            <!-- <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button> -->
+        </div>
+    <?php endif ?>
 
 
 </div>
