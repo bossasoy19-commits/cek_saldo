@@ -25,6 +25,7 @@ $routes->group('auth', function ($routes) {
 
 // $routes->get('/', 'Dashboard::index', ['filter' => 'auth']);   
 $routes->get('/', 'home\home::index', ['filter' => 'auth']);
+$routes->get('/dashboard', 'home\home::index', ['filter' => 'auth']);
 $routes->get('logout', 'auth_saldo\Auth::logout');
 $routes->get('login', 'auth_saldo\Auth::login');
 $routes->get('setup', 'auth_saldo\Auth::setup');
