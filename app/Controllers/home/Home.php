@@ -36,6 +36,7 @@ class Home extends BaseCrudController
         $room = $this->RoomModel->where('owner_user_id', $user_id)->first();
         if ($room) {
             $room_id = $room['room_id'];
+            session()->set('room_id', $room_id);
             $account = $this->AccountModel->where('room_id', $room_id)->findAll();
             $data['account'] = $account;
         }

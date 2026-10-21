@@ -39,7 +39,7 @@
                             // Email / WhatsApp / Username
                             echo f_input([
                                 'name' => 'identity',
-                                'label' => 'Username (Email / No. WhatsApp)',
+                                'label' => 'No. WhatsApp/Email',
                                 'value' => '',
                                 'class_feedback' => '',
                                 'class_div' => 'col-12'

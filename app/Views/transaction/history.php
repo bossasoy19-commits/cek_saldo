@@ -123,15 +123,15 @@
                                     <!-- ICON & DETAILS (LEFT) -->
                                     <div class="d-flex align-items-center gap-2 overflow-hidden flex-grow-1" style="min-width: 0;">
                                         <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" :class="{
-                                                 'bg-success-subtle text-success': item.type === 'pemasukan',
-                                                 'bg-danger-subtle text-danger': item.type === 'pengeluaran',
-                                                 'bg-primary-subtle text-primary': item.type === 'transfer'
-                                             }" style="width: 38px; height: 38px;">
+                                                'bg-success-subtle text-success': item.type === 'pemasukan',
+                                                'bg-danger-subtle text-danger': item.type === 'pengeluaran',
+                                                'bg-primary-subtle text-primary': item.type === 'transfer'
+                                            }" style="width: 38px; height: 38px;">
                                             <i class="bi fs-6" :class="{
-                                                   'bi-arrow-down-left-circle-fill': item.type === 'pemasukan',
-                                                   'bi-arrow-up-right-circle-fill': item.type === 'pengeluaran',
-                                                   'bi-arrow-left-right': item.type === 'transfer'
-                                               }"></i>
+                                                'bi-arrow-down-left-circle-fill': item.type === 'pemasukan',
+                                                'bi-arrow-up-right-circle-fill': item.type === 'pengeluaran',
+                                                'bi-arrow-left-right': item.type === 'transfer'
+                                            }"></i>
                                         </div>
 
                                         <div class="overflow-hidden flex-grow-1" style="min-width: 0;">
@@ -146,10 +146,10 @@
                                     <!-- NOMINAL & STATUS (RIGHT) -->
                                     <div class="text-end flex-shrink-0 ps-1">
                                         <span class="fw-bold d-block fs-7 text-nowrap" :class="{
-                                                  'text-success': item.type === 'pemasukan',
-                                                  'text-danger': item.type === 'pengeluaran',
-                                                  'text-primary': item.type === 'transfer'
-                                              }" x-text="(item.type === 'pemasukan' ? '+ ' : (item.type === 'pengeluaran' ? '- ' : '')) + formatRupiah(item.nominal)">
+                                                'text-success': item.type === 'pemasukan',
+                                                'text-danger': item.type === 'pengeluaran',
+                                                'text-primary': item.type === 'transfer'
+                                            }" x-text="(item.type === 'pemasukan' ? '+ ' : (item.type === 'pengeluaran' ? '- ' : '')) + formatRupiah(item.nominal)">
                                         </span>
                                         <template x-if="item.is_pending == 1">
                                             <span class="badge bg-warning-subtle text-warning border border-warning-subtle fs-8 rounded-pill mt-1 px-2 py-0">
