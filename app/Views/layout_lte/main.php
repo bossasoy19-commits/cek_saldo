@@ -1,8 +1,12 @@
 <?= view('layout_lte/partials/1_head.php'); ?>
 <!--begin::Body-->
 
+<!-- <body class="layout-fixed sidebar-expand-lg bg-body-tertiary"> -->
+
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
-    <!--begin::App Wrapper-->
+
+    <!-- <body class="layout-fixed sidebar-expand-lg sidebar-mini sidebar-collapse bg-body-tertiary"> -->
+    <!--begin::App Wrapper222-->
     <div class="app-wrapper">
         <?php
         echo  view('layout_lte/partials/2_header.php');

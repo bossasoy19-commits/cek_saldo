@@ -53,7 +53,9 @@
     <!--end::Accessibility Features-->
 
     <!--begin::Fonts-->
-    <link rel="stylesheet" href="<?= base_url('admin_lte/css/source-sans-3/index.css') ?>" integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous" media="print" onload="this.media = 'all'" />
+    <!-- <link rel="stylesheet" href="<?= base_url('admin_lte/css/source-sans-3/index.css') ?>" integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous" media="print" onload="this.media = 'all'" /> -->
+    <!-- KODE BARU (TANPA INTEGRITY) -->
+    <link rel="stylesheet" href="http://localhost:8080/admin_lte/css/source-sans-3/index.css">
     <!--end::Fonts-->
 
     <!--begin::Third Party Plugin(OverlayScrollbars)-->
@@ -87,6 +89,15 @@
             color: #000 !important;
         }
     </style>
+    <!-- <style>
+        @media (min-width: 992px) {
+
+            /* Jika sidebar-collapse aktif, sembunyikan sidebar sepenuhnya */
+            body.sidebar-collapse .app-sidebar {
+                margin-left: calc(var(--lte-sidebar-width, 250px) * -1) !important;
+            }
+        }
+    </style> -->
 
 </head>
 <!--end::Head-->
