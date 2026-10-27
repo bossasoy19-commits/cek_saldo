@@ -79,18 +79,16 @@ $trx_type = $type ?? 'pemasukan';
                             </label>
                             <select name="from_wallet_id" class="form-select form-select-lg rounded-3 fs-6" :required="type === 'pengeluaran' || type === 'transfer'">
                                 <option value="" disabled selected>-- Pilih Dompet --</option>
-                                <?php
-                                $wallets_opt = $wallets ?? [
-                                    ['id' => 1, 'nama' => 'Tunai', 'saldo' => 200000],
-                                    ['id' => 2, 'nama' => 'BRI', 'saldo' => 6500000],
-                                    ['id' => 3, 'nama' => 'OVO', 'saldo' => 300000],
-                                ];
-                                foreach ($wallets_opt as $w) :
-                                ?>
-                                    <option value="<?= $w['id'] ?>">
-                                        <?= $w['nama'] ?> (Saldo: Rp <?= number_format($w['saldo'], 0, ',', '.') ?>)
-                                    </option>
-                                <?php endforeach; ?>
+                                <?php if ($wallets) : ?>
+                                    <?php
+                                    $wallets_opt = $wallets;
+                                    foreach ($wallets_opt as $w) :
+                                        ?>
+                                        <option value="<?= encrypt_url($w['account_id'])  ?>">
+                                            <?= $w['nama_akun'] ?> (<?= $w['jenis_wallet'] ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif ?>
                             </select>
                         </div>
 
@@ -103,8 +101,8 @@ $trx_type = $type ?? 'pemasukan';
                             <select name="to_wallet_id" class="form-select form-select-lg rounded-3 fs-6" :required="type === 'pemasukan' || type === 'transfer'">
                                 <option value="" disabled selected>-- Pilih Dompet --</option>
                                 <?php foreach ($wallets_opt as $w) : ?>
-                                    <option value="<?= $w['id'] ?>">
-                                        <?= $w['nama'] ?> (Saldo: Rp <?= number_format($w['saldo'], 0, ',', '.') ?>)
+                                    <option value="<?= encrypt_url($w['account_id'])  ?>">
+                                        <?= $w['nama_akun'] ?> (<?= $w['jenis_wallet'] ?>)
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -119,21 +117,22 @@ $trx_type = $type ?? 'pemasukan';
                                 <!-- Optgroup Pemasukan -->
                                 <template x-if="type === 'pemasukan'">
                                     <g>
-                                        <option value="101">Gaji / Penghasilan Utama</option>
-                                        <option value="102">Bonus / Tunjangan</option>
-                                        <option value="103">Hasil Usaha / Penjualan</option>
-                                        <option value="104">Lain-lain</option>
+                                        <?php if ($akun_pemasukan) : ?>
+                                            <?php foreach ($akun_pemasukan as $akun) : ?>
+                                                <option value="<?= encrypt_url($akun['account_id']) ?>"><?= $akun['nama_akun'] ?></option>
+                                            <?php endforeach ?>
+                                        <?php endif ?>
                                     </g>
                                 </template>
 
                                 <!-- Optgroup Pengeluaran -->
                                 <template x-if="type === 'pengeluaran'">
                                     <g>
-                                        <option value="201">Makanan & Minuman</option>
-                                        <option value="202">Belanja / Kebutuhan Harian</option>
-                                        <option value="203">Transportasi / Bensin</option>
-                                        <option value="204">Tagihan & Utilitas</option>
-                                        <option value="205">Lain-lain</option>
+                                        <?php if ($akun_pengeluaran) : ?>
+                                            <?php foreach ($akun_pengeluaran as $akun) : ?>
+                                                <option value="<?= encrypt_url($akun['account_id']) ?>"><?= $akun['nama_akun'] ?></option>
+                                            <?php endforeach ?>
+                                        <?php endif ?>
                                     </g>
                                 </template>
                             </select>

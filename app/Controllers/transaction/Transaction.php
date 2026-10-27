@@ -5,6 +5,7 @@ namespace App\Controllers\transaction;
 use App\Controllers\BaseController;
 use App\Controllers\BaseCrudController;
 use App\Models\transaction\transactionModel;
+use App\Models\coa\AccountModel;
 
 class Transaction extends BaseCrudController
 {
@@ -12,6 +13,7 @@ class Transaction extends BaseCrudController
     protected string $controller = 'transaction';
     protected string $folder_ = 'transaction';
     protected $TransactionModel;
+    protected $AccountModel;
     protected $IndexModel;
     protected $UserModel;
 
@@ -20,6 +22,7 @@ class Transaction extends BaseCrudController
         // Set timezone ke Indonesia
         date_default_timezone_set('Asia/Jakarta');
         $this->TransactionModel = new transactionModel();
+        $this->AccountModel = new AccountModel();
         // Load model
         $this->breadcrumb = [
             ['href' => $this->controller, 'title' => $this->title]
@@ -38,8 +41,37 @@ class Transaction extends BaseCrudController
     {
         $data['title'] = $this->title;
         $data2 = [];
+        $akun = $this->AccountModel
+            ->groupStart()
+            ->where('deleted_by', null)
+            ->orWhere('deleted_by', '')
+            ->groupEnd()
+            ->findAll();
+        $wallets = [];
+        $akun_pemasukan = [];
+        $akun_pengeluaran = [];
+        if ($akun) {
+            $wallets = array_filter($akun, function ($item) {
+                return $item['is_wallet'] == 1; // Ubah ke format array
+            });
+            $wallets = array_values($wallets);
+
+            $akun_pemasukan = array_filter($akun, function ($item) {
+                return $item['kelompok_akun'] == 4 && !empty($item['parent_id']);
+            });
+            $akun_pemasukan = array_values($akun_pemasukan);
+
+            $akun_pengeluaran = array_filter($akun, function ($item) {
+                return $item['kelompok_akun'] == 5 && !empty($item['parent_id']);
+            });
+            $akun_pengeluaran = array_values($akun_pengeluaran);
+        }
+
         $data['data2'] = $data2;
         $data['type'] = $type;
+        $data['wallets'] = $wallets;
+        $data['akun_pemasukan'] = $akun_pemasukan;
+        $data['akun_pengeluaran'] = $akun_pengeluaran;
         $data['file_view'] = $this->controller . '/form';
         return view('layout_lte/section', $data);
     }

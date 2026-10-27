@@ -10,7 +10,7 @@
     <div class="app-wrapper">
         <?php
         echo  view('layout_lte/partials/2_header.php');
-        echo  view('layout_lte/partials/3_sidebar.php');
+        // echo  view('layout_lte/partials/3_sidebar.php');
         ?>
 
         <!--begin::App Main-->
