@@ -2,36 +2,36 @@
 // Default jenis transaksi jika tidak dilempar dari controller: 'pemasukan', 'pengeluaran', atau 'transfer'
 $trx_type = $type ?? 'pemasukan';
 ?>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="container-fluid py-3 px-3" x-data="transactionForm('<?= $trx_type ?>')">
 
-<div class="container-fluid py-3 px-3" x-data="transactionForm('<?= $trx_type ?>')">
+            <!-- HEADER NAVIGATION & TIPE SWITCHER -->
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <a href="<?= base_url('home') ?>" class="btn btn-light rounded-circle p-2 shadow-sm border d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                        <i class="bi bi-arrow-left fs-5 text-dark"></i>
+                    </a>
+                    <h6 class="fw-bold text-dark mb-0" x-text="headerTitle()"></h6>
+                </div>
 
-    <!-- HEADER NAVIGATION & TIPE SWITCHER -->
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="d-flex align-items-center gap-2">
-            <a href="<?= base_url('home') ?>" class="btn btn-light rounded-circle p-2 shadow-sm border d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
-                <i class="bi bi-arrow-left fs-5 text-dark"></i>
-            </a>
-            <h6 class="fw-bold text-dark mb-0" x-text="headerTitle()"></h6>
-        </div>
+                <!-- Badge Status Tipe -->
+                <span class="badge px-3 py-2 rounded-pill fw-semibold" :class="badgeClass()">
+                    <i class="bi me-1" :class="badgeIcon()"></i>
+                    <span x-text="typeLabel()"></span>
+                </span>
+            </div>
 
-        <!-- Badge Status Tipe -->
-        <span class="badge px-3 py-2 rounded-pill fw-semibold" :class="badgeClass()">
-            <i class="bi me-1" :class="badgeIcon()"></i>
-            <span x-text="typeLabel()"></span>
-        </span>
-    </div>
+            <!-- MAIN FORM CARD -->
 
-    <!-- MAIN FORM CARD -->
-    <div class="row justify-content-center">
-        <div class="col-md-6">
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-4">
 
                     <?php
                     echo form_open(
-                        base_url(($controller ?? 'transaction') . '/save'),
+                        base_url(($controller ?? 'transaction') . '/save/' . ($type ?? 'pemasukan')),
                         [
-                            'id' => 'form_transaction',
+                            'id' => 'form_datas',
                             'class' => 'needs-validation',
                             'novalidate' => 'novalidate',
                             'autocomplete' => 'off',
@@ -42,6 +42,7 @@ $trx_type = $type ?? 'pemasukan';
                             'data-confirm' => 'Ya, Simpan 🚀',
                             'data-cancel' => 'Batal',
                             'data-method' => $hx_post ?? 'post',
+                            'data-target' => '#setup_respon',
                         ]
                     );
                     ?>
@@ -83,7 +84,7 @@ $trx_type = $type ?? 'pemasukan';
                                     <?php
                                     $wallets_opt = $wallets;
                                     foreach ($wallets_opt as $w) :
-                                        ?>
+                                    ?>
                                         <option value="<?= encrypt_url($w['account_id'])  ?>">
                                             <?= $w['nama_akun'] ?> (<?= $w['jenis_wallet'] ?>)
                                         </option>
@@ -170,11 +171,16 @@ $trx_type = $type ?? 'pemasukan';
                     </div>
 
                     <!-- ACTION BUTTONS -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p class="text-muted small mb-4" id="setup_respon"></p>
+                        </div>
+                    </div>
                     <div class="d-flex gap-2 mt-4">
                         <a href="<?= base_url('dashboard') ?>" class="btn btn-light py-2 px-4 rounded-3 fw-semibold border">
                             Batal
                         </a>
-                        <button type="submit" class="btn py-2 px-4 rounded-3 fw-semibold w-100 shadow-sm text-white" :class="submitBtnClass()">
+                        <button type="submit" class="btn btn-primary py-2 px-4 rounded-3 fw-semibold w-100 shadow-sm text-white">
                             <i class="bi bi-check-circle me-1"></i> Simpan Transaksi
                         </button>
                     </div>
@@ -183,12 +189,12 @@ $trx_type = $type ?? 'pemasukan';
 
                 </div>
             </div>
+
+
+
         </div>
     </div>
-
-
 </div>
-
 <script>
     function transactionForm(initialType) {
         return {

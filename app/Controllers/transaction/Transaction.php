@@ -92,4 +92,19 @@ class Transaction extends BaseCrudController
         $data['file_view'] = $this->controller . '/history';
         return view('layout_lte/section', $data);
     }
+
+    public function save($type = 'pemasukan'): string
+    {
+        $method = strtolower($this->request->getMethod(true));
+        $input_validasi = $this->cek_validasi_save($method, $this->controller);
+        $validasi = $input_validasi['validasi'];
+        $input = $input_validasi['input'];
+        $id = $input_validasi['id']; //sudah decrypt
+        $pesan_tambahan = $this->title;
+        if ($validasi) {
+            return alert($validasi);
+        }
+
+        return d($input);
+    }
 }

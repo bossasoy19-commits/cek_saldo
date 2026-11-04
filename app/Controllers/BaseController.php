@@ -70,22 +70,23 @@ abstract class BaseController extends Controller
         $id = null;
         if ($method === 'post') {
             $input = $this->request->getPost();
-            $validasi = $this->cek_validasi_get_data($controller . '/addForm');
-        } elseif ($method === 'put') {
-            $input = $this->request->getRawInput();
-            $id = decrypt_url($input['id_encrypt']);
-            if (empty(trim((string) $id))) {
-                $input = null;
-                $id = null;
-                $validasi = alert('tidak menemukan data untuk diubah !', ['color' => 'alert-danger']);
-            } else {
-                # code...
-                $validasi = $this->cek_validasi_get_data($controller . '/editForm');
-            }
-        } else {
-            $input = null;
-            $validasi = alert('tidak ada akses');
+            // $validasi = $this->cek_validasi_get_data($controller . '/addForm');
         }
+        // elseif ($method === 'put') {
+        //     $input = $this->request->getRawInput();
+        //     $id = decrypt_url($input['id_encrypt']);
+        //     if (empty(trim((string) $id))) {
+        //         $input = null;
+        //         $id = null;
+        //         // $validasi = alert('tidak menemukan data untuk diubah !', ['color' => 'alert-danger']);
+        //     } else {
+        //         # code...
+        //         $validasi = $this->cek_validasi_get_data($controller . '/editForm');
+        //     }
+        // } else {
+        //     $input = null;
+        //     $validasi = alert('tidak ada akses');
+        // }
 
         return ['input' => $input, 'validasi' => $validasi, 'id' => $id];
     }
