@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Controllers\BaseCrudController;
 use App\Models\transaction\transactionModel;
 use App\Models\coa\AccountModel;
+use App\Models\transaction\transactionDetailModel;
 
 class Transaction extends BaseCrudController
 {
@@ -13,6 +14,7 @@ class Transaction extends BaseCrudController
     protected string $controller = 'transaction';
     protected string $folder_ = 'transaction';
     protected $TransactionModel;
+    protected $TransactionDetailModel;
     protected $AccountModel;
     protected $IndexModel;
     protected $UserModel;
@@ -22,6 +24,7 @@ class Transaction extends BaseCrudController
         // Set timezone ke Indonesia
         date_default_timezone_set('Asia/Jakarta');
         $this->TransactionModel = new transactionModel();
+        $this->TransactionDetailModel = new transactionDetailModel();
         $this->AccountModel = new AccountModel();
         // Load model
         $this->breadcrumb = [
@@ -99,12 +102,84 @@ class Transaction extends BaseCrudController
         $input_validasi = $this->cek_validasi_save($method, $this->controller);
         $validasi = $input_validasi['validasi'];
         $input = $input_validasi['input'];
-        $id = $input_validasi['id']; //sudah decrypt
-        $pesan_tambahan = $this->title;
+        $id = $input_validasi['id']; // sudah decrypt
+
         if ($validasi) {
             return alert($validasi);
         }
 
-        return d($input);
+        $user_id = session()->get('user_id');
+        $room_id = session()->get('room_id');
+
+        try {
+            $db = \Config\Database::connect();
+            $db->transStart();
+
+            // 1. Tentukan Prefix No Referensi & Deskripsi Berdasarkan Tipe
+            $prefix = 'TRX';
+            if ($type === 'pemasukan') {
+                $prefix = 'INC';
+            } elseif ($type === 'pengeluaran') {
+                $prefix = 'EXP';
+            } elseif ($type === 'transfer') {
+                $prefix = 'TRF';
+            }
+
+            // 2. Simpan Header ke tbl_transaction
+            $this->TransactionModel->save([
+                'room_id'           => $room_id,
+                'no_referensi'      => $prefix . '-' . date('YmdHis'),
+                'tanggal_transaksi' => date('Y-m-d', strtotime($input['tanggal'])),
+                'deskripsi'         => $input['keterangan'] ?? ucfirst($type),
+                'status_transaksi'  => 'POSTED',
+                'created_by'        => $user_id
+            ]);
+            $transactionId = $this->TransactionModel->getInsertID();
+
+            // 3. Logika Detail Berdasarkan Tipe Transaksi
+            if ($type === 'pemasukan') {
+                // A. Pemasukan: Dompet (Debit) & Pendapatan (Kredit)
+                $debitAccountId  = decrypt_url($input['to_wallet_id']);
+                $kreditAccountId = decrypt_url($input['category_id']);
+            } elseif ($type === 'pengeluaran') {
+                // B. Pengeluaran: Beban/Kategori (Debit) & Dompet Asal (Kredit)
+                $debitAccountId  = decrypt_url($input['category_id']);
+                $kreditAccountId = decrypt_url($input['from_wallet_id']);
+            } elseif ($type === 'transfer') {
+                // C. Transfer: Dompet Tujuan (Debit) & Dompet Asal (Kredit)
+                $debitAccountId  = decrypt_url($input['to_wallet_id']);
+                $kreditAccountId = decrypt_url($input['from_wallet_id']);
+            } else {
+                throw new \Exception('Tipe transaksi tidak valid.');
+            }
+
+            // 4. Insert Sisi DEBIT
+            $this->TransactionDetailModel->insert([
+                'transaction_id' => $transactionId,
+                'account_id'     => $debitAccountId,
+                'debet'          => $input['nominal'],
+                'kredit'         => 0,
+                'keterangan'     => $input['keterangan'],
+                'created_at'     => date('Y-m-d H:i:s'),
+                'created_by'     => $user_id
+            ]);
+
+            // 5. Insert Sisi KREDIT
+            $this->TransactionDetailModel->insert([
+                'transaction_id' => $transactionId,
+                'account_id'     => $kreditAccountId,
+                'debet'          => 0,
+                'kredit'         => $input['nominal'],
+                'keterangan'     => $input['keterangan'],
+                'created_at'     => date('Y-m-d H:i:s'),
+                'created_by'     => $user_id
+            ]);
+
+            $db->transComplete();
+            return alert('Berhasil simpan data ' . $type) .
+                '<script>document.getElementById("form_datas").reset();</script>';
+        } catch (\Throwable $th) {
+            return th_no_alert($th);
+        }
     }
 }
