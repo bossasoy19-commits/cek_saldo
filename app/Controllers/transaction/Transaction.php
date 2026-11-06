@@ -42,7 +42,7 @@ class Transaction extends BaseCrudController
 
     public function form($type = 'pemasukan'): string
     {
-        $data['title'] = $this->title;
+        $data['title'] = $this->title . ' ' . ucwords($type);
         $data2 = [];
         $akun = $this->AccountModel
             ->groupStart()
@@ -176,8 +176,13 @@ class Transaction extends BaseCrudController
             ]);
 
             $db->transComplete();
-            return alert('Berhasil simpan data ' . $type) .
-                '<script>document.getElementById("form_datas").reset();</script>';
+            return  swall(
+                $title ?? 'Sukses',
+                $text ?? 'menyimpan transaksi ' . $type,
+                $icon ?? 'success',
+                ['position' => 'top-end', 'showConfirmButton' => false, 'timer' => 2000]
+            ) .
+                '<script>resetForm();</script>';
         } catch (\Throwable $th) {
             return th_no_alert($th);
         }

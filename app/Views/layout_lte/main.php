@@ -7,7 +7,9 @@
 
     <!-- <body class="layout-fixed sidebar-expand-lg sidebar-mini sidebar-collapse bg-body-tertiary"> -->
     <!--begin::App Wrapper222-->
+
     <div class="app-wrapper">
+
         <?php
         echo  view('layout_lte/partials/2_header.php');
         // echo  view('layout_lte/partials/3_sidebar.php');
@@ -24,6 +26,7 @@
         </main>
         <!--end::App Main-->
         <?= view('layout_lte/partials/5_footer.php'); ?>
+
     </div>
     <!--end::App Wrapper-->
     <?= view('layout_lte/partials/6_script.php'); ?>

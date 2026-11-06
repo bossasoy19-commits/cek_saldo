@@ -160,7 +160,7 @@ if (!function_exists('alert')) {
 
         $color = $opsi['color'] ?? 'alert-warning';
         $btn_close = $opsi['btn_close'] ?? '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
-        $second    = $opsi['second'] ?? 15;
+        $second    = $opsi['second'] ?? 10;
         $alert = <<<HTML
             <div class="alert $color  alert-dismissible fade show" role="alert">
                <strong>$pesan </strong> 

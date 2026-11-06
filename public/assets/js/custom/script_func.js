@@ -261,11 +261,30 @@ function startAutoHideResume() {
   }, seconds * 1000);
 }
 
+// function resetForm(id = "form_datas") {
+//   const form = document.getElementById(id);
+
+//   if (!form) return;
+
+//   form.reset();
+//   form.classList.remove("was-validated");
+//   return true;
+// }
+
 function resetForm(id = "form_datas") {
   const form = document.getElementById(id);
 
   if (!form) return;
 
+  // 1. Reset nilai form ke awal
   form.reset();
+
+  // 2. Hapus kelas validasi dari form (jika pakai Bootstrap)
   form.classList.remove("was-validated");
+
+  // 3. Hapus kelas error (.is-invalid) dari semua input di dalam form
+  const invalidInputs = form.querySelectorAll(".is-invalid");
+  invalidInputs.forEach((input) => {
+    input.classList.remove("is-invalid");
+  });
 }

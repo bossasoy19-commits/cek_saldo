@@ -9,7 +9,7 @@ use App\Models\room\RoomModel;
 
 class Home extends BaseCrudController
 {
-    protected string $title = 'Home';
+    protected string $title = 'Dashboard';
     protected string $controller = 'Home';
     protected string $folder_ = 'home';
     protected $HomeModel;
@@ -34,13 +34,18 @@ class Home extends BaseCrudController
         $user_id = session()->get('user_id');
         // cari account rekening
         $room = $this->RoomModel->where('owner_user_id', $user_id)->first();
+        $data['title'] = $this->title;
         if ($room) {
             $room_id = $room['room_id'];
             session()->set('room_id', $room_id);
-            $account = $this->AccountModel->where('room_id', $room_id)->findAll();
-            $data['account'] = $account;
+            $dompet = $this->AccountModel->getWalletBalances($room_id);
+            $data['dompet'] = $dompet;
+            // 2. Hitung total keseluruhan saldo dari semua dompet
+            $data['total_saldo'] = array_sum(array_column($dompet, 'saldo'));
         }
         $data['room'] = $room;
+
+        // dd($data['dompet']);
         $data2 = [];
         $data['data2'] = $data2;
         $data['file_view'] = $this->controller . '/index';

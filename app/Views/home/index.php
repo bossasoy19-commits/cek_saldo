@@ -10,6 +10,7 @@
 use PhpParser\Node\Stmt\Echo_;
 
 helper('number'); ?>
+
 <div class="container-fluid min-vh-100 pb-5 px-3 bg-body-tertiary">
 
     <!-- Top App Bar / User Greeting -->
@@ -23,15 +24,7 @@ helper('number'); ?>
                 <h6 class="fw-bold text-dark mb-0"><?= $user['nama'] ?? 'Andi' ?> 👋</h6>
             </div>
         </div>
-        <a href="<?= base_url('notifications') ?>" class="btn btn-light rounded-circle p-2 shadow-sm border position-relative">
-            <i class="bi bi-bell fs-5 text-secondary"></i>
-            <!-- Indikator notifikasi jika ada transaksi gantung -->
-            <?php if (!empty($has_pending_trx)) : ?>
-                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
-                    <span class="visually-hidden">New alerts</span>
-                </span>
-            <?php endif; ?>
-        </a>
+
     </div>
 
     <!-- BANNER KHUSUS GUEST (Jika status_akun == 0) -->
@@ -56,20 +49,20 @@ helper('number'); ?>
     <!-- MAIN CARD: TOTAL UANG & RINGKASAN UTANG/PIUTANG -->
     <div class="card border-0 bg-primary text-white rounded-4 shadow mb-4 overflow-hidden position-relative">
         <div class="card-body p-4 position-relative z-1">
-            <span class="text-white-50 small d-block mb-1">Total Uang</span>
-            <h2 class="fw-bold mb-3"><?= number_to_currency($total_uang ?? 7000000, 'IDR', 'id_ID', 0) ?></h2>
+            <span class="text-white-50 small d-block mb-1">Total Saldo</span>
+            <h2 class="fw-bold mb-3"><?= number_to_currency($total_saldo ?? 0, 'IDR', 'id_ID', 0) ?></h2>
 
             <div class="row g-2 pt-2 border-top border-white-10">
                 <div class="col-6">
                     <div class="p-2 bg-white bg-opacity-10 rounded-3">
                         <span class="text-white-50 fs-7 d-block">Piutang</span>
-                        <span class="fw-semibold text-white small"><?= number_to_currency($total_piutang ?? 200000, 'IDR', 'id_ID', 0) ?></span>
+                        <span class="fw-semibold text-white small"><?= number_to_currency($total_piutang ?? 0, 'IDR', 'id_ID', 0) ?></span>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="p-2 bg-white bg-opacity-10 rounded-3">
                         <span class="text-white-50 fs-7 d-block">Hutang</span>
-                        <span class="fw-semibold text-white small"><?= number_to_currency($total_hutang ?? 500000, 'IDR', 'id_ID', 0) ?></span>
+                        <span class="fw-semibold text-white small"><?= number_to_currency($total_hutang ?? 0, 'IDR', 'id_ID', 0) ?></span>
                     </div>
                 </div>
             </div>
@@ -112,13 +105,9 @@ helper('number'); ?>
             <div class="card-body p-2">
                 <div class="d-flex flex-column gap-1">
                     <?php
-
-                    $wallet = array_filter($account, function ($item) {
-                        return $item['is_wallet'] == 1;
-                    });
-                    foreach ($wallet as $dompet) : ?>
+                    foreach ($dompet as $row_dom) : ?>
                         <?php
-                        $icon = match ($dompet['jenis_wallet'] ?? null) {
+                        $icon = match ($row_dom['jenis_wallet'] ?? null) {
                             'CASH'    => 'bi-cash-stack',
                             'BANK'    => 'bi-bank',
                             'EWALLET' => 'bi-wallet2',
@@ -134,12 +123,12 @@ helper('number'); ?>
                                 </div>
 
                                 <span class="fw-semibold text-dark">
-                                    <?= esc($dompet['nama_akun']) ?>
+                                    <?= esc($row_dom['nama_akun']) ?>
                                 </span>
                             </div>
 
                             <span class="fw-bold text-dark">
-                                <?= number_to_currency($dompet['saldo'] ?? 0, 'IDR', 'id_ID', 0) ?>
+                                <?= number_to_currency($row_dom['saldo'] ?? 0, 'IDR', 'id_ID', 0) ?>
                             </span>
 
                         </div>

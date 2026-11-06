@@ -1,10 +1,12 @@
 <?= $this->extend('layout_lte/main') ?>
 <?= $this->section('content') ?>
-
-<!--begin::Container-->
-<?= view($file_view, $data2) ?>
-<!--end::Container-->
-
+<div class="row justify-content-center">
+    <div class="col-md-11 col-lg-6">
+        <!--begin::Container-->
+        <?= view($file_view, $data2) ?>
+        <!--end::Container-->
+    </div>
+</div>
 <!-- BOTTOM NAVIGATION BAR (FIXED MOBILE) -->
 <div class="fixed-bottom bg-white border-top py-2 px-3 shadow-lg">
     <div class="row text-center g-0">
