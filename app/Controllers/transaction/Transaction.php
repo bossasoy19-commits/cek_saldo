@@ -78,14 +78,14 @@ class Transaction extends BaseCrudController
         $data['file_view'] = $this->controller . '/form';
         return view('layout_lte/section', $data);
     }
-    public function history(): string
+    public function Xhistory(): string
     {
         $data['title'] = $this->title;
         $data2 = [];
         $room_id = session()->get('room_id');
         $formatted_transactions = [];
         if ($room_id) {
-            $getHistoryByRoom = $this->TransactionModel->getHistoryByRoom($room_id);
+            $getHistoryByRoom = $this->TransactionModel->getHistoryByRoom($room_id, 1);
             if ($getHistoryByRoom) {
                 $formatted_transactions = $this->TransactionModel->formatted_transactions($getHistoryByRoom);
             }
@@ -188,6 +188,53 @@ class Transaction extends BaseCrudController
         }
     }
 
+    public function history(): string
+    {
+        $data['title'] = $this->title;
+        $room_id = session()->get('room_id');
+        $formatted_transactions = [];
+
+        if ($room_id) {
+            // Ambil 5 data pertama untuk halaman awal
+            $getHistoryByRoom = $this->TransactionModel->getHistoryByRoom($room_id, 5, 0);
+            if ($getHistoryByRoom) {
+                $formatted_transactions = $this->TransactionModel->formatted_transactions($getHistoryByRoom);
+            }
+        }
+        $data2 = [];
+        $data['data2'] = $data2;
+        $data['transactions'] = $formatted_transactions;
+        $data['file_view'] = $this->controller . '/history';
+        return view('layout_lte/section', $data);
+    }
+
+    // Endpoint AJAX untuk Load More (Infinite Scroll)
+    public function loadMore()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'Akses ditolak']);
+        }
+
+        $room_id = session()->get('room_id');
+        $page = $this->request->getGet('page') ?? 2;
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
+
+        $formatted_transactions = [];
+        if ($room_id) {
+            $getHistoryByRoom = $this->TransactionModel->getHistoryByRoom($room_id, $limit, $offset);
+            // dd(print_r($getHistoryByRoom));
+            if ($getHistoryByRoom) {
+                $formatted_transactions = $this->TransactionModel->formatted_transactions($getHistoryByRoom);
+            }
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => $formatted_transactions,
+            'hasMore' => count($formatted_transactions) == $limit // Cek apakah masih ada data selanjutnya
+        ]);
+    }
     public function save($type = 'pemasukan'): string
     {
         $method = strtolower($this->request->getMethod(true));

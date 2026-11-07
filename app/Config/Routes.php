@@ -46,6 +46,7 @@ $routes->group('transaction', ['filter' => 'auth'], function ($routes) {
     $routes->get('form/(:segment)', $controller . '::form/$1');
     $routes->post('save/(:segment)', $controller . '::save/$1');
     $routes->get('history', $controller . '::history');
+    $routes->get('loadMore', $controller . '::loadMore');
 });
 $routes->group('report', ['filter' => 'auth'], function ($routes) {
     $controller = 'report\report';

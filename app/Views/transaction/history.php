@@ -118,7 +118,7 @@
                 <div class="d-flex flex-column gap-2">
                     <template x-for="item in group" :key="item.id">
                         <div class="card border-0 shadow-sm rounded-3 overflow-hidden" x-show="item.wallet !='Umum'">
-                            <div class="card-body p-3">
+                            <div class=" card-body p-3">
                                 <div class="d-flex align-items-center justify-content-between gap-2">
 
                                     <!-- ICON & DETAILS (LEFT) -->
@@ -139,8 +139,8 @@
                                             <h6 class="fw-bold mb-0 fs-7 text-truncate" :class="item.keterangan ? 'text-dark' : 'text-muted'" x-text="item.keterangan || 'Tanpa keterangan'">
                                             </h6>
                                             <div class="d-flex align-items-center gap-1 mt-1 text-truncate">
-                                                <span class="badge bg-light text-secondary border fs-8 px-1 py-0 text-truncate" style="max-width: 90px;" x-text="item.wallet"></span>
-                                                <span class="text-muted fs-8 text-nowrap" x-text="'• ' + formatTanggal (item.tanggal)"></span>
+                                                <span class="badge bg-light text-secondary border fs-8 px-1 py-0" style="max-width: 90px;" x-text="item.wallet"></span>
+                                                <!-- <span class="text-muted fs-8 text-nowrap" x-text="'• ' + formatTanggal (item.tanggal)"></span> -->
                                             </div>
                                         </div>
                                     </div>
@@ -258,6 +258,29 @@
         </div>
     </div>
 
+    <!-- LOADING SPINNER INDICATOR -->
+    <div x-show="isLoading" class="text-center py-3">
+        <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <span class="text-muted fs-8 ms-2">Memuat transaksi lainnya...</span>
+    </div>
+
+    <!-- TOMBOL LOAD MORE (UNTUK SEMUA LAYAR) -->
+    <div class="text-center my-3" x-show="hasMore">
+        <button class="btn btn-outline-primary btn-sm rounded-pill px-4 fs-7" @click="loadMoreData()" :disabled="isLoading">
+            <span x-show="!isLoading">Muat Data Lainnya...</span>
+            <span x-show="isLoading">
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                Memuat...
+            </span>
+        </button>
+    </div>
+
+    <div class="text-center my-3" x-show="!hasMore && items.length > 0">
+        <span class="text-muted fs-8">Semua transaksi telah ditampilkan.</span>
+    </div>
+
 </div>
 
 <style>
@@ -282,6 +305,46 @@
             filterType: 'all',
             filterWallet: 'all',
             items: <?= json_encode($raw_transactions) ?>,
+            page: 1,
+            isLoading: false,
+            hasMore: true,
+
+            init() {
+                // Event listener untuk mendeteksi scroll ke bawah (Infinite Scroll)
+                window.addEventListener('scroll', () => {
+                    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                        this.loadMoreData();
+                    }
+                });
+            },
+
+            loadMoreData() {
+                if (this.isLoading || !this.hasMore) return;
+
+                this.isLoading = true;
+                this.page++;
+
+                fetch(`<?= base_url('transaction/loadMore') ?>?page=${this.page}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(res => {
+                        if (res.status === 'success') {
+                            if (res.data.length > 0) {
+                                // Gabungkan data lama dengan data baru yang di-fetch
+                                this.items = [...this.items, ...res.data];
+                            }
+                            this.hasMore = res.hasMore;
+                        }
+                        this.isLoading = false;
+                    })
+                    .catch(error => {
+                        console.error('Gagal memuat data:', error);
+                        this.isLoading = false;
+                    });
+            },
 
             // Menghasilkan Array Terfilter & Tersortir
             getFilteredList() {
