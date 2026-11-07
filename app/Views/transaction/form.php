@@ -1,6 +1,23 @@
 <?php
 // Default jenis transaksi jika tidak dilempar dari controller: 'pemasukan', 'pengeluaran', atau 'transfer'
 $trx_type = $type ?? 'pemasukan';
+function option_wallet($wallets): string
+{
+    if (empty($wallets)) {
+        return '';
+    }
+
+    $html = '';
+    foreach ($wallets as $w) {
+        $value = encrypt_url($w['account_id']);
+        $nama = htmlspecialchars($w['nama_akun'], ENT_QUOTES, 'UTF-8');
+        $jenis = htmlspecialchars($w['jenis_wallet'], ENT_QUOTES, 'UTF-8');
+
+        $html .= "<option value=\"{$value}\">{$nama} ({$jenis})</option>";
+    }
+
+    return $html;
+}
 ?>
 
 <div class="container-fluid py-3 px-3" x-data="transactionForm('<?= $trx_type ?>')">
@@ -11,7 +28,7 @@ $trx_type = $type ?? 'pemasukan';
             <a href="<?= base_url('home') ?>" class="btn btn-light rounded-circle p-2 shadow-sm border d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
                 <i class="bi bi-arrow-left fs-5 text-dark"></i>
             </a>
-            <h6 class="fw-bold text-dark mb-0" x-text="headerTitle()"></h6>
+            <!-- <h6 class="fw-bold text-dark mb-0" x-text="headerTitle()"></h6> -->
         </div>
 
         <!-- Badge Status Tipe -->
@@ -79,16 +96,7 @@ $trx_type = $type ?? 'pemasukan';
                     </label>
                     <select name="from_wallet_id" class="form-select form-select-lg rounded-3 fs-6" :required="type === 'pengeluaran' || type === 'transfer'">
                         <option value="" disabled selected>-- Pilih Dompet --</option>
-                        <?php if ($wallets) : ?>
-                            <?php
-                            $wallets_opt = $wallets;
-                            foreach ($wallets_opt as $w) :
-                            ?>
-                                <option value="<?= encrypt_url($w['account_id'])  ?>">
-                                    <?= $w['nama_akun'] ?> (<?= $w['jenis_wallet'] ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        <?php endif ?>
+                        <?= option_wallet($wallets) ?>
                     </select>
                 </div>
 
@@ -100,11 +108,7 @@ $trx_type = $type ?? 'pemasukan';
                     </label>
                     <select name="to_wallet_id" class="form-select form-select-lg rounded-3 fs-6" :required="type === 'pemasukan' || type === 'transfer'">
                         <option value="" disabled selected>-- Pilih Dompet --</option>
-                        <?php foreach ($wallets_opt as $w) : ?>
-                            <option value="<?= encrypt_url($w['account_id'])  ?>">
-                                <?= $w['nama_akun'] ?> (<?= $w['jenis_wallet'] ?>)
-                            </option>
-                        <?php endforeach; ?>
+                        <?= option_wallet($wallets) ?>
                     </select>
                 </div>
 
@@ -150,7 +154,7 @@ $trx_type = $type ?? 'pemasukan';
                 <!-- 6. KAS GANTUNG & BUKTI / KUITANSI -->
                 <div class="col-12">
                     <div class="p-3 border rounded-3 bg-light">
-                        <div class="form-check form-switch mb-2">
+                        <div class="form-check form-switch mb-2" x-show="type != 'transfer'">
                             <input class="form-check-input" type="checkbox" role="switch" id="switchPending" x-model="isPending" name="is_pending" value="1">
                             <label class="form-check-label fw-semibold text-dark small" for="switchPending">
                                 Simpan sebagai Transaksi Gantung (Pending)
@@ -162,7 +166,7 @@ $trx_type = $type ?? 'pemasukan';
 
                         <div class="mt-2" x-show="!isPending">
                             <label class="form-label fw-semibold text-dark small mb-1">Bukti / Nota (Opsional)</label>
-                            <input type="file" name="attachment" class="form-control form-control-sm" accept="image/*,.pdf">
+                            <input type="file" name="attachment[]" class="form-control form-control-sm" accept="image/*,.pdf" multiple>
                         </div>
                     </div>
                 </div>

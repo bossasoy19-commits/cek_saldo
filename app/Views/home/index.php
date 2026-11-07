@@ -9,7 +9,51 @@
 
 use PhpParser\Node\Stmt\Echo_;
 
-helper('number'); ?>
+helper('number');
+function render_wallet_list($dompet): string
+{
+    if (empty($dompet)) {
+        return '<p class="text-muted text-center py-3">Tidak ada data dompet.</p>';
+    }
+
+    $html = '';
+    foreach ($dompet as $row_dom) {
+        // Tentukan icon berdasarkan jenis wallet menggunakan match expression PHP
+        $jenis = $row_dom['jenis_wallet'] ?? null;
+        $icon = match ($jenis) {
+            'CASH'    => 'bi-cash-stack',
+            'BANK'    => 'bi-bank',
+            'EWALLET' => 'bi-wallet2',
+            default   => 'bi-wallet2',
+        };
+
+        // Amankan data teks untuk mencegah XSS (menggunakan htmlspecialchars atau esc() CodeIgniter)
+        $namaAkun = htmlspecialchars($row_dom['nama_akun'] ?? '', ENT_QUOTES, 'UTF-8');
+
+        // Format angka ke format mata uang Rupiah (IDR)
+        $saldoVal = $row_dom['saldo'] ?? 0;
+        $saldoFormatted = number_to_currency($saldoVal, 'IDR', 'id_ID', 0);
+
+        // Gabungkan string HTML
+        $html .= '
+        <div class="p-3 rounded-3 d-flex align-items-center justify-content-between hover-bg-light">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-2 bg-light rounded-3 text-primary">
+                    <i class="bi ' . $icon . ' fs-5"></i>
+                </div>
+                <span class="fw-semibold text-dark">
+                    ' . $namaAkun . '
+                </span>
+            </div>
+            <span class="fw-bold text-dark">
+                ' . $saldoFormatted . '
+            </span>
+        </div>';
+    }
+
+    return $html;
+}
+?>
 
 <div class="container-fluid min-vh-100 pb-5 px-3 bg-body-tertiary">
 
@@ -99,42 +143,24 @@ helper('number'); ?>
         <!-- LIST SALDO PER DOMPET -->
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h6 class="fw-bold text-dark mb-0">Saldo per Dompet</h6>
-            <a href="<?= base_url('account') ?>" class="text-primary text-decoration-none small fw-semibold">Kelola</a>
+            <a href="<?= base_url('') ?>" class="text-primary text-decoration-none small fw-semibold">Kelola</a>
         </div>
         <div class="card border-0 shadow-sm rounded-4 mb-4">
             <div class="card-body p-2">
                 <div class="d-flex flex-column gap-1">
-                    <?php
-                    foreach ($dompet as $row_dom) : ?>
-                        <?php
-                        $icon = match ($row_dom['jenis_wallet'] ?? null) {
-                            'CASH'    => 'bi-cash-stack',
-                            'BANK'    => 'bi-bank',
-                            'EWALLET' => 'bi-wallet2',
-                            default   => 'bi-wallet2',
-                        };
-                        ?>
-
-                        <div class="p-3 rounded-3 d-flex align-items-center justify-content-between hover-bg-light">
-
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="p-2 bg-light rounded-3 text-primary">
-                                    <i class="bi <?= $icon ?> fs-5"></i>
-                                </div>
-
-                                <span class="fw-semibold text-dark">
-                                    <?= esc($row_dom['nama_akun']) ?>
-                                </span>
-                            </div>
-
-                            <span class="fw-bold text-dark">
-                                <?= number_to_currency($row_dom['saldo'] ?? 0, 'IDR', 'id_ID', 0) ?>
-                            </span>
-
-                        </div>
-                    <?php endforeach ?>
-
-
+                    <?= render_wallet_list($dompet) ?>
+                </div>
+            </div>
+        </div>
+        <!-- LIST SALDO GANTUNG-->
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold text-dark mb-0">Saldo Gantung per Dompet</h6>
+            <a href="<?= base_url('') ?>" class="text-primary text-decoration-none small fw-semibold">Kelola</a>
+        </div>
+        <div class="card border-warning shadow-sm rounded-4 mb-4">
+            <div class="card-body p-2">
+                <div class="d-flex flex-column gap-1">
+                    <?= render_wallet_list($dompet_pending) ?>
                 </div>
             </div>
         </div>

@@ -54,7 +54,7 @@ class AccountModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-    public function getWalletBalances($room_id)
+    public function getWalletBalances($room_id, $status_transaksi = 'POSTED')
     {
         return $this->select('tbl_account.account_id, tbl_account.nama_akun, tbl_account.kode_akun, tbl_account.jenis_wallet, 
                 COALESCE(SUM(td.debet), 0) - COALESCE(SUM(td.kredit), 0) as saldo')
@@ -63,6 +63,11 @@ class AccountModel extends Model
             ->where('tbl_account.room_id', $room_id)
             ->where('tbl_account.is_wallet', 1)
             ->where('tbl_account.deleted_at', null)
+            // Filter agar transaksi PENDING (atau selain POSTED) tidak masuk ke perhitungan saldo
+            ->groupStart()
+            ->where('t.status_transaksi', $status_transaksi)
+            ->orWhere('t.transaction_id', null) // Untuk dompet yang belum pernah ada transaksinya sama sekali (agar tidak ikut terhapus karena left join)
+            ->groupEnd()
             ->groupBy('tbl_account.account_id')
             ->findAll();
     }

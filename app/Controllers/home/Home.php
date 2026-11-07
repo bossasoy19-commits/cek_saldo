@@ -39,7 +39,9 @@ class Home extends BaseCrudController
             $room_id = $room['room_id'];
             session()->set('room_id', $room_id);
             $dompet = $this->AccountModel->getWalletBalances($room_id);
+            $dompet_pending = $this->AccountModel->getWalletBalances($room_id, 'PENDING');
             $data['dompet'] = $dompet;
+            $data['dompet_pending'] = $dompet_pending;
             // 2. Hitung total keseluruhan saldo dari semua dompet
             $data['total_saldo'] = array_sum(array_column($dompet, 'saldo'));
         }
