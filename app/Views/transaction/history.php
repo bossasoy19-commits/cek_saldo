@@ -49,62 +49,10 @@
     <!-- DATA DUMMY TRANSAKSI -->
     <?php
     $raw_transactions = $transactions ?? [];
-    // $raw_transactions = $transactions ?? [
-    //     [
-    //         'id' => 1,
-    //         'type' => 'pemasukan',
-    //         'keterangan' => 'Gaji Bulanan PT Maju Bersama',
-    //         'category' => 'Gaji & Pendapatan',
-    //         'nominal' => 7500000,
-    //         'wallet' => 'BRI',
-    //         'tanggal' => '2026-09-27 08:30:00',
-    //         'is_pending' => 0
-    //     ],
-    //     [
-    //         'id' => 2,
-    //         'type' => 'pengeluaran',
-    //         'keterangan' => 'Belanja Mingguan Supermarket',
-    //         'category' => 'Belanja Harian',
-    //         'nominal' => 450000,
-    //         'wallet' => 'Tunai',
-    //         'tanggal' => '2026-09-27 10:15:00',
-    //         'is_pending' => 0
-    //     ],
-    //     [
-    //         'id' => 3,
-    //         'type' => 'transfer',
-    //         'keterangan' => 'Topup Saldo OVO dari BRI',
-    //         'category' => 'Transfer',
-    //         'nominal' => 200000,
-    //         'wallet' => 'BRI ➔ OVO',
-    //         'tanggal' => '2026-09-26 14:00:00',
-    //         'is_pending' => 0
-    //     ],
-    //     [
-    //         'id' => 4,
-    //         'type' => 'pengeluaran',
-    //         'keterangan' => 'Beli Bensin Pertamax',
-    //         'category' => 'Transportasi',
-    //         'nominal' => 50000,
-    //         'wallet' => 'Tunai',
-    //         'tanggal' => '2026-09-26 16:45:00',
-    //         'is_pending' => 0
-    //     ],
-    //     [
-    //         'id' => 5,
-    //         'type' => 'pengeluaran',
-    //         'keterangan' => 'Servis Motor Matic (Pending Nota)',
-    //         'category' => 'Pemeliharaan',
-    //         'nominal' => 180000,
-    //         'wallet' => 'OVO',
-    //         'tanggal' => '2026-09-25 11:20:00',
-    //         'is_pending' => 1
-    //     ],
-    // ];
     ?>
 
     <!-- LIST TRANSAKSI DI-GRUP PER TANGGAL -->
-    <div class="d-flex flex-column gap-3">
+    <div class="d-flex flex-column gap-3" @click.away="activeCardId = null">
 
         <template x-for="(group, groupDate) in groupedTransactions()" :key="groupDate">
             <div>
@@ -117,17 +65,18 @@
                 <!-- ITEM TRANSAKSI DALAM GRUP -->
                 <div class="d-flex flex-column gap-2">
                     <template x-for="item in group" :key="item.id">
-                        <div class="card border-0 shadow-sm rounded-3 overflow-hidden" x-show="item.wallet !='Umum'">
-                            <div class=" card-body p-3">
+                        <div class="card border-0 shadow-sm rounded-3 overflow-hidden position-relative mb-1 transaction-card" x-show="item.wallet !='Umum'" @click="activeCardId = (activeCardId === item.id ? null : item.id)">
+
+                            <div class="card-body p-3 bg-white">
                                 <div class="d-flex align-items-center justify-content-between gap-2">
 
                                     <!-- ICON & DETAILS (LEFT) -->
                                     <div class="d-flex align-items-center gap-2 overflow-hidden flex-grow-1" style="min-width: 0;">
                                         <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" :class="{
-                                                'bg-success-subtle text-success': item.type === 'pemasukan',
-                                                'bg-danger-subtle text-danger': item.type === 'pengeluaran',
-                                                'bg-primary-subtle text-primary': item.type === 'transfer'
-                                            }" style="width: 38px; height: 38px;">
+                                            'bg-success-subtle text-success': item.type === 'pemasukan',
+                                            'bg-danger-subtle text-danger': item.type === 'pengeluaran',
+                                            'bg-primary-subtle text-primary': item.type === 'transfer'
+                                        }" style="width: 38px; height: 38px;">
                                             <i class="bi fs-6" :class="{
                                                 'bi-arrow-down-left-circle-fill': item.type === 'pemasukan',
                                                 'bi-arrow-up-right-circle-fill': item.type === 'pengeluaran',
@@ -138,15 +87,14 @@
                                         <div class="overflow-hidden flex-grow-1" style="min-width: 0;">
                                             <h6 class="fw-bold mb-0 fs-7 text-truncate" :class="item.keterangan ? 'text-dark' : 'text-muted'" x-text="item.keterangan || 'Tanpa keterangan'">
                                             </h6>
-                                            <div class="d-flex align-items-center gap-1 mt-1 text-truncate">
-                                                <span class="badge bg-light text-secondary border fs-8 px-1 py-0" style="max-width: 90px;" x-text="item.wallet"></span>
-                                                <!-- <span class="text-muted fs-8 text-nowrap" x-text="'• ' + formatTanggal (item.tanggal)"></span> -->
+                                            <div class="d-flex align-items-center gap-1 mt-1">
+                                                <span class="badge bg-light text-secondary border fs-8 px-1 py-0" x-text="item.wallet"></span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- NOMINAL & STATUS (RIGHT) -->
-                                    <div class="text-end flex-shrink-0 ps-1">
+                                    <div class="text-end flex-shrink-0">
                                         <span class="fw-bold d-block fs-7 text-nowrap" :class="{
                                                 'text-success': item.type === 'pemasukan',
                                                 'text-danger': item.type === 'pengeluaran',
@@ -162,6 +110,28 @@
 
                                 </div>
                             </div>
+
+                            <!-- TOMBOL AKSI (MUNCUL KETIKA KARTU DIKLIK) -->
+                            <div class="d-flex border-top bg-light px-3 py-2 justify-content-end gap-3 align-items-center" :class="activeCardId === item.id ? 'd-flex' : 'd-none'" x-transition>
+
+                                <!-- TOMBOL DETAIL (Memanggil openHtmxModal yang sudah ada di htmx_custom.js) -->
+                                <button type="button" class="btn btn-link text-info p-0 fs-8 text-decoration-none d-flex align-items-center gap-1 fw-semibold" @click.stop="openHtmxModal({
+                                    url: '<?= base_url('transaction/detail') ?>',
+                                    title: 'Detail Transaksi',
+                                    size: 'md',
+                                    id: item.id
+                                })">
+                                    <i class="bi bi-info-circle"></i> Detail
+                                </button>
+
+                                <span class="text-muted">|</span>
+
+                                <!-- TOMBOL HAPUS (Menggunakan kelas btn_confirm agar otomatis memicu SweetAlert dari htmx_custom.js) -->
+                                <button type="button" class="btn btn-link text-danger p-0 fs-8 text-decoration-none d-flex align-items-center gap-1 fw-semibold btn_confirm" hx-delete="<?= base_url('transaction/delete') ?>" data-title="Hapus transaksi ini?" data-text="Data transaksi yang sudah dihapus tidak dapat dikembalikan." :hx-vals="JSON.stringify({ id: item.id })" hx-target="closest .transaction-card" hx-swap="outerHTML swap:0.2s" @click.stop="">
+                                    <i class="bi bi-trash"></i> Hapus
+                                </button>
+                            </div>
+
                         </div>
                     </template>
                 </div>
@@ -266,7 +236,7 @@
         <span class="text-muted fs-8 ms-2">Memuat transaksi lainnya...</span>
     </div>
 
-    <!-- TOMBOL LOAD MORE (UNTUK SEMUA LAYAR) -->
+    <!-- TOMBOL LOAD MORE -->
     <div class="text-center my-3" x-show="hasMore">
         <button class="btn btn-outline-primary btn-sm rounded-pill px-4 fs-7" @click="loadMoreData()" :disabled="isLoading">
             <span x-show="!isLoading">Muat Data Lainnya...</span>
@@ -295,6 +265,15 @@
     .tracking-wider {
         letter-spacing: 0.05em;
     }
+
+    .transaction-card {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .transaction-card:hover {
+        border-color: #dee2e6 !important;
+    }
 </style>
 
 <script>
@@ -309,8 +288,21 @@
             isLoading: false,
             hasMore: true,
 
+            // State untuk melacak kartu transaksi mana yang sedang dibuka
+            activeCardId: null,
+
+            // Aksi Tombol Detail & Hapus
+            viewDetail(item) {
+                alert('Detail transaksi ID: ' + item.id + '\nKeterangan: ' + item.keterangan);
+            },
+
+            deleteTransaction(item) {
+                if (confirm('Yakin ingin menghapus transaksi ini?')) {
+                    this.items = this.items.filter(i => i.id !== item.id);
+                }
+            },
+
             init() {
-                // Event listener untuk mendeteksi scroll ke bawah (Infinite Scroll)
                 window.addEventListener('scroll', () => {
                     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
                         this.loadMoreData();
@@ -333,7 +325,6 @@
                     .then(res => {
                         if (res.status === 'success') {
                             if (res.data.length > 0) {
-                                // Gabungkan data lama dengan data baru yang di-fetch
                                 this.items = [...this.items, ...res.data];
                             }
                             this.hasMore = res.hasMore;
@@ -346,7 +337,6 @@
                     });
             },
 
-            // Menghasilkan Array Terfilter & Tersortir
             getFilteredList() {
                 let list = [...this.items];
 
@@ -376,13 +366,12 @@
                 return list;
             },
 
-            // Mengelompokkan Data berdasarkan YYYY-MM-DD
             groupedTransactions() {
                 const list = this.getFilteredList();
                 const groups = {};
 
                 list.forEach(item => {
-                    const dateKey = item.tanggal.split(' ')[0]; // Ambil YYYY-MM-DD
+                    const dateKey = item.tanggal.split(' ')[0];
                     if (!groups[dateKey]) {
                         groups[dateKey] = [];
                     }
@@ -392,7 +381,6 @@
                 return groups;
             },
 
-            // Formatter Label Tanggal Grup (Hari Ini, Kemarin, atau 25 Sep 2026)
             formatGroupHeader(dateStr) {
                 const dateObj = new Date(dateStr);
                 const today = new Date('2026-09-27');
@@ -445,17 +433,15 @@
                     minute: '2-digit'
                 }).replace('.', ':');
             },
+
             formatTanggal(tanggalStr) {
                 if (!tanggalStr) return '';
                 const date = new Date(tanggalStr);
-
-                // Opsi format tanggal Indonesia
-                const options = {
+                return date.toLocaleDateString('id-ID', {
                     day: '2-digit',
                     month: 'long',
                     year: 'numeric'
-                };
-                return date.toLocaleDateString('id-ID', options);
+                });
             }
         }
     }

@@ -71,7 +71,11 @@ function option_wallet($wallets): string
                 <label class="form-label fw-semibold small mb-1" :class="nominalTextClass()" x-text="'Nominal ' + typeLabel()"></label>
                 <div class="input-group input-group-lg justify-content-center">
                     <span class="input-group-text bg-transparent border-0 fw-bold fs-3" :class="nominalTextClass()">Rp</span>
-                    <input type="number" name="nominal" x-model.number="nominal" class="form-control border-0 bg-transparent fw-bold fs-2 text-start p-0 shadow-none" :class="nominalTextClass()" placeholder="0" min="1" required style="max-width: 220px;">
+                    <!-- Gunakan type="text" & inputmode="numeric" agar format titik bisa jalan -->
+                    <input type="text" inputmode="numeric" x-model="formattedNominal" @input="formatInputNominal($event)" class="form-control border-0 bg-transparent fw-bold fs-2 text-start p-0 shadow-none" :class="nominalTextClass()" placeholder="0" required style="max-width: 220px;">
+
+                    <!-- Hidden input asli yang dikirim ke backend/database (berisi angka murni tanpa titik) -->
+                    <input type="hidden" name="nominal" x-model="rawNominal">
                 </div>
             </div>
 
@@ -202,7 +206,24 @@ function option_wallet($wallets): string
         return {
             type: initialType || 'pemasukan', // pemasukan, pengeluaran, transfer
             nominal: '',
+            rawNominal: '', // Angka murni untuk database (contoh: 1000000)
+            formattedNominal: '', // Tampilan berformat (contoh: 1.000.000)
             isPending: false,
+
+            // Fungsi untuk memformat angka secara otomatis saat diketik
+            formatInputNominal(event) {
+                // 1. Ambil hanya angka saja, buang karakter lain
+                let value = event.target.value.replace(/[^0-9]/g, '');
+
+                this.rawNominal = value; // Simpan angka murni
+
+                // 2. Format dengan pemisah titik ribuan
+                if (value !== '') {
+                    this.formattedNominal = new Intl.NumberFormat('id-ID').format(value);
+                } else {
+                    this.formattedNominal = '';
+                }
+            },
 
             headerTitle() {
                 if (this.type === 'pemasukan') return 'Tambah Pemasukan';

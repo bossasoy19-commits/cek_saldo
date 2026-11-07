@@ -277,7 +277,7 @@ class Transaction extends BaseCrudController
                         $file->move($uploadPath, $attachmentName);
 
                         // Simpan nama file ke array pelacak
-                        $uploadedFiles[] = $attachmentName;
+                        $uploadedFiles[] = 'uploads/transactions/' . $user_id . '/' . $room_id . '/' . $attachmentName;
                     }
                 }
             }
@@ -391,5 +391,36 @@ class Transaction extends BaseCrudController
             }
             return th_no_alert($th);
         }
+    }
+
+    public function detail()
+    {
+        // Pastikan request ini datang dari AJAX/HTMX
+        // if (!$this->request->isAJAX()) {
+        //     throw new \CodeIgniter\Exceptions\PageNotFoundException();
+        // }
+
+        $id = $this->request->getGet('param');
+
+        if (!$id) {
+            return '<div class="alert alert-danger mb-0 fs-8">ID Transaksi tidak valid.</div>';
+        }
+
+        // Ambil data transaksi beserta detailnya dari database
+        $transaction = $this->TransactionModel->findTransactionWithDetails($id);
+        if (!$transaction) {
+            return '<div class="alert alert-warning mb-0 fs-8">Data transaksi tidak ditemukan.</div>';
+        }
+
+        // Jika kamu punya data detail/relasi akun (misal double-entry detail), ambil di sini:
+        // $details = $this->TransactionModel->getDetailRows($id);
+
+        $data = [
+            'trx' => $transaction,
+            // 'details' => $details
+        ];
+
+        // Return view khusus partial untuk isi modal
+        return view('transaction/modal_detail_content', $data);
     }
 }

@@ -214,11 +214,11 @@ class transactionModel extends Model
                     if ($nominal <= 0) continue;
 
                     // Prioritaskan keterangan spesifik dari detail database (misal: "Saldo Awal Tunai"), jika kosong ambil dari header/kategori
-                    $keteranganItem = !empty($w['detail_keterangan']) ? $w['detail_keterangan'] : ($tx['keterangan'] ?: 'Transaksi ' . $w['category']);
+                    $keteranganItem = !empty($w['detail_keterangan']) ? $w['detail_keterangan'] : ($tx['keterangan'] ?: ucwords($type)  . ' ' .  $w['category']);
                     $categoryName = !empty($nonWalletRows) ? reset($nonWalletRows)['category'] : $w['category'];
 
                     $formatted_transactions[] = [
-                        'id'         => $w['td_id'], // Unik per baris detail
+                        'id'         => $tx['transaction_id'], // Unik per baris detail
                         'type'       => $type,
                         'keterangan' => $keteranganItem,
                         'category'   => $categoryName,
@@ -232,5 +232,40 @@ class transactionModel extends Model
         }
 
         return $formatted_transactions;
+    }
+
+    public function findTransactionWithDetails($transaction_id)
+    {
+        // 1. Ambil master transaksi
+        $transaction = $this->db->table('tbl_transaction')
+            ->where('transaction_id', $transaction_id)
+            ->where('deleted_at IS NULL')
+            ->get()
+            ->getRowArray();
+
+        if (!$transaction) {
+            return null;
+        }
+
+        // 2. Ambil detail akun terkait transaksi ini
+        $details = $this->db->table('tbl_transaction_detail td')
+            ->select('
+            td.transaction_detail_id as td_id,
+            td.transaction_id as id,
+            td.debet,
+            td.kredit,
+            td.keterangan as detail_keterangan,
+            acc.nama_akun as category,
+            acc.is_wallet,
+            acc.jenis_wallet
+        ')
+            ->join('tbl_account acc', 'acc.account_id = td.account_id')
+            ->where('td.transaction_id', $transaction_id)
+            ->get()
+            ->getResultArray();
+
+        $transaction['details'] = $details;
+
+        return $transaction;
     }
 }
