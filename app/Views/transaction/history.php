@@ -48,58 +48,59 @@
 
     <!-- DATA DUMMY TRANSAKSI -->
     <?php
-    $raw_transactions = $transactions ?? [
-        [
-            'id' => 1,
-            'type' => 'pemasukan',
-            'keterangan' => 'Gaji Bulanan PT Maju Bersama',
-            'category' => 'Gaji & Pendapatan',
-            'nominal' => 7500000,
-            'wallet' => 'BRI',
-            'tanggal' => '2026-09-27 08:30:00',
-            'is_pending' => 0
-        ],
-        [
-            'id' => 2,
-            'type' => 'pengeluaran',
-            'keterangan' => 'Belanja Mingguan Supermarket',
-            'category' => 'Belanja Harian',
-            'nominal' => 450000,
-            'wallet' => 'Tunai',
-            'tanggal' => '2026-09-27 10:15:00',
-            'is_pending' => 0
-        ],
-        [
-            'id' => 3,
-            'type' => 'transfer',
-            'keterangan' => 'Topup Saldo OVO dari BRI',
-            'category' => 'Transfer',
-            'nominal' => 200000,
-            'wallet' => 'BRI ➔ OVO',
-            'tanggal' => '2026-09-26 14:00:00',
-            'is_pending' => 0
-        ],
-        [
-            'id' => 4,
-            'type' => 'pengeluaran',
-            'keterangan' => 'Beli Bensin Pertamax',
-            'category' => 'Transportasi',
-            'nominal' => 50000,
-            'wallet' => 'Tunai',
-            'tanggal' => '2026-09-26 16:45:00',
-            'is_pending' => 0
-        ],
-        [
-            'id' => 5,
-            'type' => 'pengeluaran',
-            'keterangan' => 'Servis Motor Matic (Pending Nota)',
-            'category' => 'Pemeliharaan',
-            'nominal' => 180000,
-            'wallet' => 'OVO',
-            'tanggal' => '2026-09-25 11:20:00',
-            'is_pending' => 1
-        ],
-    ];
+    $raw_transactions = $transactions ?? [];
+    // $raw_transactions = $transactions ?? [
+    //     [
+    //         'id' => 1,
+    //         'type' => 'pemasukan',
+    //         'keterangan' => 'Gaji Bulanan PT Maju Bersama',
+    //         'category' => 'Gaji & Pendapatan',
+    //         'nominal' => 7500000,
+    //         'wallet' => 'BRI',
+    //         'tanggal' => '2026-09-27 08:30:00',
+    //         'is_pending' => 0
+    //     ],
+    //     [
+    //         'id' => 2,
+    //         'type' => 'pengeluaran',
+    //         'keterangan' => 'Belanja Mingguan Supermarket',
+    //         'category' => 'Belanja Harian',
+    //         'nominal' => 450000,
+    //         'wallet' => 'Tunai',
+    //         'tanggal' => '2026-09-27 10:15:00',
+    //         'is_pending' => 0
+    //     ],
+    //     [
+    //         'id' => 3,
+    //         'type' => 'transfer',
+    //         'keterangan' => 'Topup Saldo OVO dari BRI',
+    //         'category' => 'Transfer',
+    //         'nominal' => 200000,
+    //         'wallet' => 'BRI ➔ OVO',
+    //         'tanggal' => '2026-09-26 14:00:00',
+    //         'is_pending' => 0
+    //     ],
+    //     [
+    //         'id' => 4,
+    //         'type' => 'pengeluaran',
+    //         'keterangan' => 'Beli Bensin Pertamax',
+    //         'category' => 'Transportasi',
+    //         'nominal' => 50000,
+    //         'wallet' => 'Tunai',
+    //         'tanggal' => '2026-09-26 16:45:00',
+    //         'is_pending' => 0
+    //     ],
+    //     [
+    //         'id' => 5,
+    //         'type' => 'pengeluaran',
+    //         'keterangan' => 'Servis Motor Matic (Pending Nota)',
+    //         'category' => 'Pemeliharaan',
+    //         'nominal' => 180000,
+    //         'wallet' => 'OVO',
+    //         'tanggal' => '2026-09-25 11:20:00',
+    //         'is_pending' => 1
+    //     ],
+    // ];
     ?>
 
     <!-- LIST TRANSAKSI DI-GRUP PER TANGGAL -->
@@ -116,7 +117,7 @@
                 <!-- ITEM TRANSAKSI DALAM GRUP -->
                 <div class="d-flex flex-column gap-2">
                     <template x-for="item in group" :key="item.id">
-                        <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                        <div class="card border-0 shadow-sm rounded-3 overflow-hidden" x-show="item.wallet !='Umum'">
                             <div class="card-body p-3">
                                 <div class="d-flex align-items-center justify-content-between gap-2">
 
@@ -135,10 +136,11 @@
                                         </div>
 
                                         <div class="overflow-hidden flex-grow-1" style="min-width: 0;">
-                                            <h6 class="fw-bold text-dark mb-0 fs-7 text-truncate" x-text="item.keterangan"></h6>
+                                            <h6 class="fw-bold mb-0 fs-7 text-truncate" :class="item.keterangan ? 'text-dark' : 'text-muted'" x-text="item.keterangan || 'Tanpa keterangan'">
+                                            </h6>
                                             <div class="d-flex align-items-center gap-1 mt-1 text-truncate">
                                                 <span class="badge bg-light text-secondary border fs-8 px-1 py-0 text-truncate" style="max-width: 90px;" x-text="item.wallet"></span>
-                                                <span class="text-muted fs-8 text-nowrap" x-text="'• ' + formatTime(item.tanggal)"></span>
+                                                <span class="text-muted fs-8 text-nowrap" x-text="'• ' + formatTanggal (item.tanggal)"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -379,6 +381,18 @@
                     hour: '2-digit',
                     minute: '2-digit'
                 }).replace('.', ':');
+            },
+            formatTanggal(tanggalStr) {
+                if (!tanggalStr) return '';
+                const date = new Date(tanggalStr);
+
+                // Opsi format tanggal Indonesia
+                const options = {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                };
+                return date.toLocaleDateString('id-ID', options);
             }
         }
     }

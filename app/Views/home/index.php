@@ -152,18 +152,21 @@ function render_wallet_list($dompet): string
                 </div>
             </div>
         </div>
-        <!-- LIST SALDO GANTUNG-->
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="fw-bold text-dark mb-0">Saldo Gantung per Dompet</h6>
-            <a href="<?= base_url('') ?>" class="text-primary text-decoration-none small fw-semibold">Kelola</a>
-        </div>
-        <div class="card border-warning shadow-sm rounded-4 mb-4">
-            <div class="card-body p-2">
-                <div class="d-flex flex-column gap-1">
-                    <?= render_wallet_list($dompet_pending) ?>
+        <?php if ($dompet_pending) : ?>
+            <!-- LIST SALDO GANTUNG-->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold text-dark mb-0">Saldo Gantung per Dompet</h6>
+                <a href="<?= base_url('') ?>" class="text-primary text-decoration-none small fw-semibold">Kelola</a>
+            </div>
+            <div class="card border-warning shadow-sm rounded-4 mb-4">
+                <div class="card-body p-2">
+                    <div class="d-flex flex-column gap-1">
+                        <?= render_wallet_list($dompet_pending) ?>
+                    </div>
                 </div>
             </div>
-        </div>
+        <?php endif ?>
+
     <?php else :
 
     ?>
